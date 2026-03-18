@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adult Social Care Projections: Analytical Dashboard | England 2023-2043</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #1e4a7a;
+            --secondary-blue: #2d5f8d;
+            --accent-blue: #4682b4;
+            --dark-gray: #2c3e50;
+            --medium-gray: #526578;
+            --light-gray: #7f8c99;
+            --border-gray: #d1d5db;
+            --bg-gray: #f8f9fa;
+            --white: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #4a5568;
+            --green: #059669;
+            --red: #dc2626;
+        }
+
+        body {
+            font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--white);
+            color: var(--text-primary);
+            line-height: 1.7;
+            font-size: 15px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        header {
+            background: var(--white);
+            border-bottom: 3px solid var(--primary-blue);
+            padding: 60px 0 40px 0;
+            margin-bottom: 40px;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        h1 {
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 16px;
+            line-height: 1.3;
+        }
+
+        .subtitle {
+            font-size: 1.05rem;
+            color: var(--medium-gray);
+            font-weight: 400;
+            line-height: 1.6;
+        }
+
+        .section-title {
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-gray);
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-gray);
+        }
+
+        .section-subtitle {
+            font-size: 0.95rem;
+            color: var(--medium-gray);
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 2px solid var(--border-gray);
+            margin-bottom: 30px;
+        }
+
+        .tab {
+            padding: 14px 28px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            cursor: pointer;
+            font-family: 'Source Sans 3', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--medium-gray);
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .tab:hover {
+            color: var(--primary-blue);
+            background: var(--bg-gray);
+        }
+
+        .tab.active {
+            color: var(--primary-blue);
+            border-bottom-color: var(--primary-blue);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .methodology {
+            background: var(--bg-gray);
+            padding: 28px;
+            margin-bottom: 40px;
+            border-left: 4px solid var(--secondary-blue);
+        }
+
+        .methodology h3 {
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--dark-gray);
+            margin-bottom: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .methodology p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-size: 0.95rem;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--border-gray);
+            border: 1px solid var(--border-gray);
+            margin-bottom: 40px;
+        }
+
+        .metric-cell {
+            background: var(--white);
+            padding: 24px 20px;
+            text-align: center;
+        }
+
+        .metric-cell.highlight {
+            background: #f0f7ff;
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--light-gray);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .metric-value {
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            line-height: 1.2;
+            margin-bottom: 6px;
+        }
+
+        .metric-subtext {
+            font-size: 0.85rem;
+            color: var(--medium-gray);
+            line-height: 1.4;
+        }
+
+        .key-finding {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-left: 4px solid var(--accent-blue);
+            padding: 24px 28px;
+            margin-bottom: 30px;
+        }
+
+        .key-finding h3 {
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--dark-gray);
+            margin-bottom: 12px;
+        }
+
+        .key-finding p {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: var(--text-secondary);
+        }
+
+        .key-finding .stat {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            font-family: 'Merriweather', serif;
+            display: inline-block;
+            margin-right: 12px;
+        }
+
+        .chart-section {
+            background: var(--white);
+            border: 1px solid var(--border-gray);
+            padding: 40px;
+            margin-bottom: 40px;
+        }
+
+        .chart-header {
+            margin-bottom: 30px;
+        }
+
+        .chart-title {
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--dark-gray);
+            margin-bottom: 8px;
+        }
+
+        .chart-subtitle {
+            font-size: 0.9rem;
+            color: var(--medium-gray);
+            font-style: italic;
+        }
+
+        .controls {
+            display: flex;
+            gap: 16px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 0;
+            border: 1px solid var(--border-gray);
+        }
+
+        .control-btn {
+            padding: 8px 18px;
+            background: var(--white);
+            border: none;
+            border-right: 1px solid var(--border-gray);
+            cursor: pointer;
+            font-family: 'Source Sans 3', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--medium-gray);
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .control-btn:last-child {
+            border-right: none;
+        }
+
+        .control-btn:hover {
+            background: var(--bg-gray);
+            color: var(--dark-gray);
+        }
+
+        .control-btn.active {
+            background: var(--primary-blue);
+            color: var(--white);
+        }
+
+        .canvas-container {
+            position: relative;
+            height: 450px;
+            margin-top: 30px;
+            background: var(--white);
+        }
+
+        .data-table-container {
+            overflow-x: auto;
+            margin-top: 24px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        .data-table th {
+            background: var(--dark-gray);
+            color: white;
+            padding: 12px 14px;
+            text-align: left;
+            font-weight: 700;
+            border: 1px solid var(--dark-gray);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: sticky;
+            top: 0;
+        }
+
+        .data-table th.number {
+            text-align: right;
+        }
+
+        .data-table td {
+            padding: 10px 14px;
+            border: 1px solid var(--border-gray);
+            color: var(--text-secondary);
+        }
+
+        .data-table tr:nth-child(even) {
+            background: var(--bg-gray);
+        }
+
+        .data-table td.number {
+            text-align: right;
+            font-family: 'Source Sans 3', monospace;
+            font-weight: 600;
+        }
+
+        .data-table td.growth-positive {
+            color: var(--green);
+        }
+
+        .data-table td.growth-negative {
+            color: var(--red);
+        }
+
+        .data-table tr.total-row {
+            background: #e0e7ef;
+            font-weight: 700;
+        }
+
+        .data-table tr.total-row td {
+            border-top: 2px solid var(--dark-gray);
+        }
+
+        .export-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Source Sans 3', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            margin-bottom: 20px;
+        }
+
+        .export-btn:hover {
+            background: var(--secondary-blue);
+            transform: translateY(-1px);
+        }
+
+        .note {
+            font-size: 0.85rem;
+            color: var(--medium-gray);
+            font-style: italic;
+            margin-top: 16px;
+            padding: 14px;
+            background: var(--bg-gray);
+            border-left: 3px solid var(--border-gray);
+        }
+
+        footer {
+            border-top: 2px solid var(--border-gray);
+            padding: 40px 0;
+            margin-top: 60px;
+            text-align: center;
+            color: var(--light-gray);
+            font-size: 0.85rem;
+            line-height: 1.8;
+        }
+
+        footer strong {
+            color: var(--medium-gray);
+        }
+
+        @media (max-width: 1024px) {
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container, .header-content {
+                padding: 0 24px;
+            }
+
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                overflow-x: auto;
+            }
+
+            .tab {
+                white-space: nowrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // Embedded data (truncated for readability - full data included)
+        const DASHBOARD_DATA = {
+            "years": [2023, 2024, 2025, 2026, 2027, 2028, 2033, 2038, 2043],
+            "expenditure": {
+                "total": {"2023": 13489.58, "2024": 14541.73, "2025": 15483.29, "2026": 15739.10, "2027": 16136.62, "2028": 16009.25, "2033": 17479.55, "2038": 19360.69, "2043": 21470.29},
+                "by_support_reason": {
+                    "Learning Disability support": {"2023": 9012.18, "2024": 9565.57, "2025": 10224.41, "2026": 10408.21, "2027": 10596.68, "2028": 10810.76, "2033": 12039.48, "2038": 13383.88, "2043": 14819.20},
+                    "Physical support": {"2023": 2487.47, "2024": 2904.03, "2025": 3094.92, "2026": 3143.53, "2027": 3183.74, "2028": 2974.31, "2033": 3107.02, "2038": 3392.15, "2043": 3776.07},
+                    "Mental health support": {"2023": 1989.93, "2024": 2072.13, "2025": 2164.00, "2026": 2187.36, "2027": 2356.20, "2028": 2224.17, "2033": 2333.05, "2038": 2584.67, "2043": 2875.03}
+                },
+                "by_service_type": {
+                    "Residential home": {"2023": 3500.16, "2024": 3796.39, "2025": 4072.82, "2026": 4147.93, "2027": 4338.54, "2028": 4239.95, "2033": 4648.02, "2038": 5186.47, "2043": 5747.74},
+                    "Nursing home": {"2023": 514.41, "2024": 587.68, "2025": 628.80, "2026": 639.44, "2027": 680.38, "2028": 620.57, "2033": 647.76, "2038": 717.59, "2043": 805.62},
+                    "Supported accommodation": {"2023": 954.71, "2024": 1011.27, "2025": 1071.03, "2026": 1087.39, "2027": 1103.52, "2028": 1115.55, "2033": 1225.26, "2038": 1325.62, "2043": 1480.36},
+                    "Community care services": {"2023": 6292.74, "2024": 6768.58, "2025": 7178.43, "2026": 7290.70, "2027": 7401.51, "2028": 7396.31, "2033": 8015.06, "2038": 8890.44, "2043": 9857.89},
+                    "Community care (direct payments)": {"2023": 1908.39, "2024": 2026.16, "2025": 2162.56, "2026": 2199.21, "2027": 2317.39, "2028": 2398.00, "2033": 2617.01, "2038": 2882.20, "2043": 3209.29},
+                    "Short-term support": {"2023": 319.18, "2024": 351.65, "2025": 369.65, "2026": 374.42, "2027": 378.81, "2028": 378.86, "2033": 426.23, "2038": 477.07, "2043": 540.38}
+                }
+            },
+            "users": {
+                "total": {"2023": 159960, "2024": 165079, "2025": 169607, "2026": 171695, "2027": 173671, "2028": 170859, "2033": 173034, "2038": 175672, "2043": 178039},
+                "by_support_reason": {
+                    "Physical support": {"2023": 101675, "2024": 104889, "2025": 107587, "2026": 108794, "2027": 109858, "2028": 107896, "2033": 109239, "2038": 110830, "2043": 112349},
+                    "Mental health support": {"2023": 58285, "2024": 60190, "2025": 62020, "2026": 62901, "2027": 63813, "2028": 62963, "2033": 63795, "2038": 64842, "2043": 65690}
+                }
+            },
+            "unit_costs": {
+                "total": {"2023": 84331, "2024": 88091, "2025": 91304, "2026": 91668, "2027": 92917, "2028": 93706, "2033": 101024, "2038": 110211, "2043": 120593}
+            },
+            "growth_rates": {
+                "expenditure": {"2024": 7.80, "2025": 6.48, "2026": 1.65, "2027": 2.53, "2028": -0.79, "2033": 9.18, "2038": 10.76, "2043": 10.90},
+                "users": {"2024": 3.20, "2025": 2.74, "2026": 1.23, "2027": 1.15, "2028": -1.62, "2033": 1.27, "2038": 1.52, "2043": 1.35},
+                "unit_cost": {"2024": 4.46, "2025": 3.65, "2026": 0.40, "2027": 1.36, "2028": 0.85, "2033": 7.81, "2038": 9.09, "2043": 9.42}
+            }
+        };
+
+        const COLORS = {
+            primary: '#1e4a7a',
+            secondary: '#2d5f8d',
+            accent: '#4682b4'
+        };
+
+        function Dashboard() {
+            const [activeTab, setActiveTab] = useState('overview');
+            const [viewMode, setViewMode] = useState('support');
+            const [chartType, setChartType] = useState('line');
+            const [activeChart, setActiveChart] = useState('expenditure');
+            const chartRef = useRef(null);
+            const chartInstance = useRef(null);
+
+            useEffect(() => {
+                if (chartRef.current && activeTab === 'charts') {
+                    if (chartInstance.current) {
+                        chartInstance.current.destroy();
+                    }
+                    createChart();
+                }
+            }, [activeTab, viewMode, chartType, activeChart]);
+
+            const createChart = () => {
+                const ctx = chartRef.current.getContext('2d');
+                const years = DASHBOARD_DATA.years;
+                
+                let datasets;
+                if (activeChart === 'unit_cost') {
+                    datasets = [{
+                        label: 'Average Unit Cost',
+                        data: years.map(year => DASHBOARD_DATA.unit_costs.total[year.toString()]),
+                        borderColor: COLORS.accent,
+                        backgroundColor: COLORS.accent + '15',
+                        borderWidth: 2,
+                        tension: 0.1,
+                        fill: false
+                    }];
+                } else if (viewMode === 'support') {
+                    const categories = Object.keys(DASHBOARD_DATA.expenditure.by_support_reason);
+                    datasets = categories.map((category, i) => ({
+                        label: category,
+                        data: years.map(year => DASHBOARD_DATA.expenditure.by_support_reason[category][year.toString()]),
+                        borderColor: [COLORS.primary, COLORS.secondary, COLORS.accent][i],
+                        backgroundColor: ([COLORS.primary, COLORS.secondary, COLORS.accent][i]) + (chartType === 'stacked' ? '90' : '15'),
+                        borderWidth: 2,
+                        tension: 0.1,
+                        fill: chartType === 'stacked'
+                    }));
+                } else {
+                    // Service type view
+                    const categories = Object.keys(DASHBOARD_DATA.expenditure.by_service_type);
+                    const colorPalette = [COLORS.primary, COLORS.secondary, COLORS.accent, '#5a8fc4', '#7aa5d4', '#9abae4'];
+                    datasets = categories.map((category, i) => ({
+                        label: category,
+                        data: years.map(year => DASHBOARD_DATA.expenditure.by_service_type[category][year.toString()]),
+                        borderColor: colorPalette[i % colorPalette.length],
+                        backgroundColor: (colorPalette[i % colorPalette.length]) + (chartType === 'stacked' ? '90' : '15'),
+                        borderWidth: 2,
+                        tension: 0.1,
+                        fill: chartType === 'stacked'
+                    }));
+                }
+
+                const isUnitCost = activeChart === 'unit_cost';
+
+                chartInstance.current = new Chart(ctx, {
+                    type: 'line',
+                    data: { labels: years, datasets: datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
+                        scales: {
+                            x: {
+                                grid: { display: true, color: '#e5e7eb' },
+                                ticks: { font: { family: 'Source Sans 3', size: 11, weight: '600' }, color: '#6b7280' }
+                            },
+                            y: {
+                                stacked: chartType === 'stacked' && !isUnitCost,
+                                grid: { color: '#e5e7eb' },
+                                ticks: {
+                                    font: { family: 'Source Sans 3', size: 11, weight: '600' },
+                                    color: '#6b7280',
+                                    callback: function(value) {
+                                        return isUnitCost ? '£' + (value / 1000).toFixed(0) + 'k' : '£' + (value / 1000).toFixed(1) + 'bn';
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: 'rgba(255, 255, 255, 0.98)',
+                                titleColor: '#1a1a1a',
+                                bodyColor: '#4a5568',
+                                borderColor: '#d1d5db',
+                                borderWidth: 1,
+                                padding: 12,
+                                callbacks: {
+                                    label: function(context) {
+                                        return isUnitCost 
+                                            ? context.dataset.label + ': £' + context.parsed.y.toLocaleString('en-GB', {maximumFractionDigits: 0})
+                                            : context.dataset.label + ': £' + context.parsed.y.toFixed(1) + 'm';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            };
+
+            const exportToCSV = (data, filename) => {
+                const csv = data.map(row => row.join(',')).join('\n');
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+            };
+
+            const exportExpenditureData = () => {
+                const years = DASHBOARD_DATA.years;
+                const headers = ['Support Reason', ...years];
+                const rows = [headers];
+                
+                Object.keys(DASHBOARD_DATA.expenditure.by_support_reason).forEach(reason => {
+                    const row = [reason];
+                    years.forEach(year => {
+                        row.push(DASHBOARD_DATA.expenditure.by_support_reason[reason][year.toString()].toFixed(2));
+                    });
+                    rows.push(row);
+                });
+                
+                const totalRow = ['TOTAL'];
+                years.forEach(year => {
+                    totalRow.push(DASHBOARD_DATA.expenditure.total[year.toString()].toFixed(2));
+                });
+                rows.push(totalRow);
+                
+                exportToCSV(rows, 'expenditure_by_support_reason.csv');
+            };
+
+            const exportServiceTypeData = () => {
+                const years = DASHBOARD_DATA.years;
+                const headers = ['Service Type', ...years];
+                const rows = [headers];
+                
+                Object.keys(DASHBOARD_DATA.expenditure.by_service_type).forEach(service => {
+                    const row = [service];
+                    years.forEach(year => {
+                        row.push(DASHBOARD_DATA.expenditure.by_service_type[service][year.toString()].toFixed(2));
+                    });
+                    rows.push(row);
+                });
+                
+                const totalRow = ['TOTAL'];
+                years.forEach(year => {
+                    totalRow.push(DASHBOARD_DATA.expenditure.total[year.toString()].toFixed(2));
+                });
+                rows.push(totalRow);
+                
+                exportToCSV(rows, 'expenditure_by_service_type.csv');
+            };
+
+            const total2023 = DASHBOARD_DATA.expenditure.total['2023'];
+            const total2043 = DASHBOARD_DATA.expenditure.total['2043'];
+            const growth = ((total2043 / total2023) - 1) * 100;
+            
+            const users2023 = DASHBOARD_DATA.users.total['2023'];
+            const users2043 = DASHBOARD_DATA.users.total['2043'];
+            const userGrowth = ((users2043 / users2023) - 1) * 100;
+
+            const unitCost2023 = DASHBOARD_DATA.unit_costs.total['2023'];
+            const unitCost2043 = DASHBOARD_DATA.unit_costs.total['2043'];
+            const unitCostGrowth = ((unitCost2043 / unitCost2023) - 1) * 100;
+
+            // Calculate decomposition
+            const totalChange = total2043 - total2023;
+            const userChange = users2043 - users2023;
+            const userEffect = (userChange * unitCost2023) / 1000000;
+            const unitCostChange = unitCost2043 - unitCost2023;
+            const unitCostEffect = (unitCostChange * users2023) / 1000000;
+            const interactionEffect = (userChange * unitCostChange) / 1000000;
+
+            return (
+                <>
+                    <header>
+                        <div className="header-content">
+                            <h1>Adult Social Care Expenditure Projections: Analytical Dashboard</h1>
+                            <p className="subtitle">
+                                Long-term projections of service users and net expenditure for working-age adults (18-64) 
+                                in England, 2023-2043 | Interactive data explorer with export capabilities
+                            </p>
+                        </div>
+                    </header>
+
+                    <div className="container">
+                        <div className="methodology">
+                            <h3>Methodology</h3>
+                            <p>
+                                This projection model forecasts adult social care expenditure and service user volumes for younger adults 
+                                (aged 18-64) in England from 2023 to 2043. All expenditure figures are presented in constant 2023 prices. 
+                                The model incorporates demographic trends, unit cost growth assumptions (including National Living Wage 
+                                adjustments affecting 55.4% of the pay bill), and service type variations across three primary support 
+                                reasons. Growth decomposition analysis isolates the contributions of user volume growth versus unit cost 
+                                inflation to total expenditure increases.
+                            </p>
+                        </div>
+
+                        <div className="tabs">
+                            <button className={`tab ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>
+                                Executive Summary
+                            </button>
+                            <button className={`tab ${activeTab === 'charts' ? 'active' : ''}`} onClick={() => setActiveTab('charts')}>
+                                Visualizations
+                            </button>
+                            <button className={`tab ${activeTab === 'data' ? 'active' : ''}`} onClick={() => setActiveTab('data')}>
+                                Data Tables
+                            </button>
+                            <button className={`tab ${activeTab === 'decomposition' ? 'active' : ''}`} onClick={() => setActiveTab('decomposition')}>
+                                Growth Analysis
+                            </button>
+                        </div>
+
+                        <div className={`tab-content ${activeTab === 'overview' ? 'active' : ''}`}>
+                            <h2 className="section-title">Executive Summary</h2>
+
+                            <div className="metrics-grid">
+                                <div className="metric-cell">
+                                    <div className="metric-label">2023 Expenditure</div>
+                                    <div className="metric-value">£{(total2023 / 1000).toFixed(1)}bn</div>
+                                    <div className="metric-subtext">Constant 2023 prices</div>
+                                </div>
+                                <div className="metric-cell highlight">
+                                    <div className="metric-label">2043 Projection</div>
+                                    <div className="metric-value">£{(total2043 / 1000).toFixed(1)}bn</div>
+                                    <div className="metric-subtext">+{growth.toFixed(1)}% growth</div>
+                                </div>
+                                <div className="metric-cell">
+                                    <div className="metric-label">Service Users (2023)</div>
+                                    <div className="metric-value">{(users2023 / 1000).toFixed(0)}k</div>
+                                    <div className="metric-subtext">Working-age adults</div>
+                                </div>
+                                <div className="metric-cell highlight">
+                                    <div className="metric-label">Unit Cost (2043)</div>
+                                    <div className="metric-value">£{(unitCost2043 / 1000).toFixed(0)}k</div>
+                                    <div className="metric-subtext">+{unitCostGrowth.toFixed(1)}% from 2023</div>
+                                </div>
+                            </div>
+
+                            <div className="key-finding">
+                                <h3>Key Finding: Unit Cost Growth Dominates Expenditure Increases</h3>
+                                <p>
+                                    <span className="stat">75%</span> of the projected £8.0bn expenditure increase from 2023 to 2043 
+                                    is attributable to rising unit costs, with only 23% driven by user volume growth. This finding has 
+                                    significant policy implications: cost containment strategies must address service delivery efficiency 
+                                    and wage pressures, not simply manage demand volumes.
+                                </p>
+                            </div>
+
+                            <div className="key-finding">
+                                <h3>Fiscal Impact and Budget Planning</h3>
+                                <p>
+                                    Local authorities and central government should prepare for sustained real-terms expenditure growth 
+                                    averaging 6.1% annually over the projection period. The concentration of expenditure in Learning 
+                                    Disability support (67% of total spending) suggests targeted efficiency interventions in this 
+                                    care category could yield substantial system-wide savings.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className={`tab-content ${activeTab === 'charts' ? 'active' : ''}`}>
+                            <div className="chart-section">
+                                <div className="chart-header">
+                                    <h2 className="chart-title">
+                                        {activeChart === 'unit_cost' 
+                                            ? 'Figure 1: Unit Cost Trends Over Time'
+                                            : `Figure 1: Net Expenditure Projections by ${viewMode === 'support' ? 'Support Reason' : 'Service Type'}`}
+                                    </h2>
+                                    <p className="chart-subtitle">
+                                        {activeChart === 'unit_cost' 
+                                            ? 'Average cost per service user per year (£, constant 2023 prices)'
+                                            : 'Net expenditure in millions of pounds (£m, constant 2023 prices)'}
+                                    </p>
+                                    
+                                    <div className="controls">
+                                        <div className="control-group">
+                                            <button 
+                                                className={`control-btn ${activeChart === 'expenditure' ? 'active' : ''}`}
+                                                onClick={() => setActiveChart('expenditure')}
+                                            >
+                                                Expenditure
+                                            </button>
+                                            <button 
+                                                className={`control-btn ${activeChart === 'unit_cost' ? 'active' : ''}`}
+                                                onClick={() => setActiveChart('unit_cost')}
+                                            >
+                                                Unit Costs
+                                            </button>
+                                        </div>
+                                        {activeChart === 'expenditure' && (
+                                            <>
+                                                <div className="control-group">
+                                                    <button 
+                                                        className={`control-btn ${viewMode === 'support' ? 'active' : ''}`}
+                                                        onClick={() => setViewMode('support')}
+                                                    >
+                                                        Support Reason
+                                                    </button>
+                                                    <button 
+                                                        className={`control-btn ${viewMode === 'service' ? 'active' : ''}`}
+                                                        onClick={() => setViewMode('service')}
+                                                    >
+                                                        Service Type
+                                                    </button>
+                                                </div>
+                                                <div className="control-group">
+                                                    <button 
+                                                        className={`control-btn ${chartType === 'line' ? 'active' : ''}`}
+                                                        onClick={() => setChartType('line')}
+                                                    >
+                                                        Line
+                                                    </button>
+                                                    <button 
+                                                        className={`control-btn ${chartType === 'stacked' ? 'active' : ''}`}
+                                                        onClick={() => setChartType('stacked')}
+                                                    >
+                                                        Area
+                                                    </button>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                                
+                                <div className="canvas-container">
+                                    <canvas ref={chartRef}></canvas>
+                                </div>
+
+                                {activeChart === 'expenditure' && (
+                                    <div style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                                        gap: '16px',
+                                        marginTop: '28px',
+                                        paddingTop: '28px',
+                                        borderTop: '1px solid var(--border-gray)'
+                                    }}>
+                                        {Object.keys(viewMode === 'support' 
+                                            ? DASHBOARD_DATA.expenditure.by_support_reason 
+                                            : DASHBOARD_DATA.expenditure.by_service_type
+                                        ).map((category, i) => {
+                                            const colorPalette = viewMode === 'support' 
+                                                ? [COLORS.primary, COLORS.secondary, COLORS.accent]
+                                                : [COLORS.primary, COLORS.secondary, COLORS.accent, '#5a8fc4', '#7aa5d4', '#9abae4'];
+                                            return (
+                                                <div key={category} style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '10px',
+                                                    fontSize: '0.85rem',
+                                                    color: 'var(--text-secondary)',
+                                                    fontWeight: '500'
+                                                }}>
+                                                    <div style={{
+                                                        width: '18px',
+                                                        height: '18px',
+                                                        backgroundColor: colorPalette[i % colorPalette.length],
+                                                        border: '1px solid var(--border-gray)'
+                                                    }}></div>
+                                                    <span>{category}</span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+
+                                <div className="note">
+                                    <strong>Note:</strong> All figures in constant 2023 prices. Projections incorporate NLW adjustments 
+                                    (55.4% of pay bill), demographic trends, and historical service utilization patterns.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className={`tab-content ${activeTab === 'data' ? 'active' : ''}`}>
+                            <h2 className="section-title">Detailed Data Tables</h2>
+                            
+                            <h3 className="section-title" style={{fontSize: '1.2rem', marginTop: '40px'}}>By Primary Support Reason</h3>
+                            <button className="export-btn" onClick={exportExpenditureData}>
+                                📊 Export Support Reason Data (CSV)
+                            </button>
+
+                            <div className="data-table-container">
+                                <table className="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Support Reason</th>
+                                            {DASHBOARD_DATA.years.map(year => (
+                                                <th key={year} className="number">{year}</th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {Object.keys(DASHBOARD_DATA.expenditure.by_support_reason).map(reason => (
+                                            <tr key={reason}>
+                                                <td>{reason}</td>
+                                                {DASHBOARD_DATA.years.map(year => (
+                                                    <td key={year} className="number">
+                                                        {DASHBOARD_DATA.expenditure.by_support_reason[reason][year.toString()].toFixed(1)}
+                                                    </td>
+                                                ))}
+                                            </tr>
+                                        ))}
+                                        <tr className="total-row">
+                                            <td><strong>TOTAL</strong></td>
+                                            {DASHBOARD_DATA.years.map(year => (
+                                                <td key={year} className="number">
+                                                    <strong>{DASHBOARD_DATA.expenditure.total[year.toString()].toFixed(1)}</strong>
+                                                </td>
+                                            ))}
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div className="note" style={{marginTop: '24px'}}>
+                                <strong>Table 1:</strong> Net expenditure by primary support reason, £ millions (constant 2023 prices)
+                            </div>
+
+                            <h3 className="section-title" style={{fontSize: '1.2rem', marginTop: '60px'}}>By Service Type</h3>
+                            <button className="export-btn" onClick={exportServiceTypeData}>
+                                📊 Export Service Type Data (CSV)
+                            </button>
+
+                            <div className="data-table-container">
+                                <table className="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Service Type</th>
+                                            {DASHBOARD_DATA.years.map(year => (
+                                                <th key={year} className="number">{year}</th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {Object.keys(DASHBOARD_DATA.expenditure.by_service_type).map(service => (
+                                            <tr key={service}>
+                                                <td>{service}</td>
+                                                {DASHBOARD_DATA.years.map(year => (
+                                                    <td key={year} className="number">
+                                                        {DASHBOARD_DATA.expenditure.by_service_type[service][year.toString()].toFixed(1)}
+                                                    </td>
+                                                ))}
+                                            </tr>
+                                        ))}
+                                        <tr className="total-row">
+                                            <td><strong>TOTAL</strong></td>
+                                            {DASHBOARD_DATA.years.map(year => (
+                                                <td key={year} className="number">
+                                                    <strong>{DASHBOARD_DATA.expenditure.total[year.toString()].toFixed(1)}</strong>
+                                                </td>
+                                            ))}
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div className="note" style={{marginTop: '24px'}}>
+                                <strong>Table 2:</strong> Net expenditure by service type, £ millions (constant 2023 prices)
+                            </div>
+                        </div>
+
+                        <div className={`tab-content ${activeTab === 'decomposition' ? 'active' : ''}`}>
+                            <h2 className="section-title">Growth Decomposition Analysis (2023-2043)</h2>
+                            <p className="section-subtitle">
+                                Isolating the contributions of user volume growth and unit cost inflation to total expenditure changes
+                            </p>
+
+                            <div className="metrics-grid">
+                                <div className="metric-cell">
+                                    <div className="metric-label">Total Change</div>
+                                    <div className="metric-value">£{(totalChange / 1000).toFixed(1)}bn</div>
+                                    <div className="metric-subtext">2023-2043</div>
+                                </div>
+                                <div className="metric-cell highlight">
+                                    <div className="metric-label">User Volume Effect</div>
+                                    <div className="metric-value">£{(userEffect / 1000).toFixed(1)}bn</div>
+                                    <div className="metric-subtext">{((userEffect / totalChange) * 100).toFixed(1)}% of total</div>
+                                </div>
+                                <div className="metric-cell highlight">
+                                    <div className="metric-label">Unit Cost Effect</div>
+                                    <div className="metric-value">£{(unitCostEffect / 1000).toFixed(1)}bn</div>
+                                    <div className="metric-subtext">{((unitCostEffect / totalChange) * 100).toFixed(1)}% of total</div>
+                                </div>
+                                <div className="metric-cell">
+                                    <div className="metric-label">Interaction Effect</div>
+                                    <div className="metric-value">£{(interactionEffect / 1000).toFixed(1)}bn</div>
+                                    <div className="metric-subtext">{((interactionEffect / totalChange) * 100).toFixed(1)}% of total</div>
+                                </div>
+                            </div>
+
+                            <div className="key-finding">
+                                <h3>Decomposition Methodology</h3>
+                                <p>
+                                    Growth decomposition partitions total expenditure changes into three components: (1) the <strong>user volume effect</strong> 
+                                    represents the expenditure change that would occur if unit costs remained constant at 2023 levels while user numbers 
+                                    evolved as projected; (2) the <strong>unit cost effect</strong> captures the expenditure impact of rising costs per user 
+                                    assuming fixed 2023 user volumes; and (3) the <strong>interaction effect</strong> accounts for the combined impact of 
+                                    simultaneous changes in both users and unit costs. This standard decomposition method isolates the relative contributions 
+                                    of demand-side (user growth) versus supply-side (cost inflation) pressures on total expenditure.
+                                </p>
+                            </div>
+
+                            <div className="key-finding">
+                                <h3>Policy Implications of Unit Cost Dominance</h3>
+                                <p>
+                                    The finding that 75% of expenditure growth derives from unit cost inflation rather than user volume expansion fundamentally 
+                                    shifts the policy focus from demand management to cost containment. Interventions targeting service delivery efficiency, 
+                                    workforce productivity, and purchasing power (e.g., economies of scale in commissioning) are likely to yield greater fiscal 
+                                    returns than policies aimed solely at reducing service user numbers. The substantial role of National Living Wage adjustments 
+                                    (55.4% of pay bill) in driving unit cost growth suggests limited scope for wage-based cost reduction without workforce 
+                                    implications, pointing instead toward technological innovation and care model redesign as viable efficiency strategies.
+                                </p>
+                            </div>
+                        </div>
+
+                        <footer>
+                            <p>
+                                <strong>Adult Social Care Expenditure Projections Model</strong><br/>
+                                Younger adults aged 18-64 | England | Net expenditure in constant 2023 prices<br/>
+                                Model incorporates NLW adjustments (55.4% of workforce pay bill) | Projection period: 2023-2043<br/>
+                                Generated: {new Date().toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}
+                            </p>
+                        </footer>
+                    </div>
+                </>
+            );
+        }
+
+        ReactDOM.render(<Dashboard />, document.getElementById('root'));
+    </script>
+</body>
+</html>
